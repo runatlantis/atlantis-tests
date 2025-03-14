@@ -1,0 +1,25 @@
+name: repo-sync
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *' # every hour
+
+jobs:
+  repo-sync:
+    if: ${{ github.repository != 'RayWangQvQ/BiliBiliToolPro' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Sync to gitlab mirror
+        run: |
+          # Add GitLab as a remote using the stored token
+          git remote add gitlab https://oauth2:${ATLANTIS_GITLAB_TOKEN}@gitlab.com/your-username/your-repo.git
+          # Push all refs to gitlab
+          git push --mirror gitlab
+        env:
+          GITLAB_TOKEN: ${{ secrets.ATLANTIS_GITLAB_TOKEN }}
