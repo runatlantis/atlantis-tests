@@ -19,6 +19,6 @@ jobs:
       - name: Sync to gitlab mirror
         run: |
           git remote add gitlab https://oauth2:${ATLANTIS_GITLAB_TOKEN}@gitlab.com/runatlantis/atlantis-tests.git
-          git push --mirror gitlab
+          git push --prune gitlab +refs/heads/*:refs/heads/* +refs/tags/*:refs/tags/*
         env:
           ATLANTIS_GITLAB_TOKEN: ${{ secrets.ATLANTIS_GITLAB_TOKEN }}
