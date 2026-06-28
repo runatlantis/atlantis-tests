@@ -1,5 +1,89 @@
 version: 3
+
+# Autodiscovery for projects without explicit config.
+# Only autodiscovery/included-a and autodiscovery/included-b are intentionally
+# auto-discovered; everything else has explicit project entries.
+autodiscover:
+  mode: enabled
+  ignore_paths:
+    - "autodiscovery/ignored"
+    - "drift/**"
+    - "multi-projects/shared-module"
+    - "output/failure"
+
 projects:
-- dir: standalone-with-workspace
-  workspace: staging
-- dir: standalone
+  # --- Original smoke-test fixtures (backward-compatible) ---
+  - dir: standalone
+    name: standalone
+
+  - dir: standalone-with-workspace
+    name: standalone-with-workspace
+    workspace: staging
+
+  # --- Multi-project explicit config ---
+  - dir: multi-projects/project1
+    name: project1
+    autoplan:
+      when_modified:
+        - "*.tf"
+        - "../shared-module/*.tf"
+
+  - dir: multi-projects/project2
+    name: project2
+    autoplan:
+      when_modified:
+        - "*.tf"
+        - "../shared-module/*.tf"
+
+  - dir: multi-projects/project-with-workspace
+    name: project-with-workspace
+    workspace: dev
+
+  # --- Autodiscovery: explicit takes precedence over discovered ---
+  - dir: autodiscovery/explicit
+    name: autodiscovery-explicit
+    autoplan:
+      when_modified:
+        - "*.tf"
+
+  # --- Detection: .tf, .tf.json, OpenTofu ---
+  - dir: detection/terraform-tf
+    name: detection-tf
+
+  - dir: detection/terraform-json
+    name: detection-json
+
+  - dir: detection/opentofu-basic
+    name: detection-opentofu
+    terraform_distribution: opentofu
+
+  # --- Custom workflow: PROJECT_NAME env assertion ---
+  - dir: custom-workflows/project-name-env
+    name: custom-workflow-env
+    workflow: assert-project-name
+
+  # --- Output rendering fixtures ---
+  - dir: output/heredoc
+    name: output-heredoc
+
+  - dir: output/long-line
+    name: output-long-line
+
+  - dir: output/failure
+    name: output-failure
+    workflow: intentional-failure
+    autoplan:
+      enabled: false
+
+workflows:
+  assert-project-name:
+    plan:
+      steps:
+        - run: sh ../scripts/assert-project-name.sh
+        - init
+        - plan
+
+  intentional-failure:
+    plan:
+      steps:
+        - run: echo "ATLANTIS_E2E_FAILURE_MARKER" && exit 1

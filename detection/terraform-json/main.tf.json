@@ -1,0 +1,16 @@
+{
+  "resource": {
+    "null_resource": {
+      "json_detection": {
+        "triggers": {
+          "marker": "atlantis-e2e-json-detection"
+        }
+      }
+    }
+  },
+  "output": {
+    "json_detection_marker": {
+      "value": "detected-via-dot-tf-json"
+    }
+  }
+}
