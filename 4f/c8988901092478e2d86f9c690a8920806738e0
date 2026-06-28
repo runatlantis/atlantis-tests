@@ -1,0 +1,23 @@
+README.md
+  s_2575a80b56302b::t_737395b7184165 7-10,13-22,30
+output/long-line/main.tf
+  s_2575a80b56302b::t_2e1fa24a1d6e28 1-4,6
+docs/coverage.md
+  s_2575a80b56302b::t_1ad9f95717d4f3 3-6,8-25,27-29,35,38-41,43,45-47,49,52,54,56,59-62,65-82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "4fc8988901092478e2d86f9c690a8920806738e0",
+  "prompts": {},
+  "sessions": {
+    "s_2575a80b56302b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e598056d-4c94-4e98-b666-4843d40583f5",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Rui Chen <rui@chenrui.dev>"
+    }
+  }
+}
