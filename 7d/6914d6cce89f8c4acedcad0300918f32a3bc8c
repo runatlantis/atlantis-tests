@@ -1,0 +1,21 @@
+atlantis.yaml
+  s_2575a80b56302b::t_b825c463dc2126 11
+output/long-line/main.tf
+  s_2575a80b56302b::t_4407ae6056af53 1-2,4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "7d6914d6cce89f8c4acedcad0300918f32a3bc8c",
+  "prompts": {},
+  "sessions": {
+    "s_2575a80b56302b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e598056d-4c94-4e98-b666-4843d40583f5",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Rui Chen <rui@chenrui.dev>"
+    }
+  }
+}
