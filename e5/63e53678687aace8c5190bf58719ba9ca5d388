@@ -1,0 +1,69 @@
+atlantis.yaml
+  s_2575a80b56302b::t_2d2de6a0529adf 2-12,14-88
+detection/terraform-json/main.tf.json
+  s_2575a80b56302b::t_437fb01e33fb56 1-16
+output/long-line/main.tf
+  s_2575a80b56302b::t_b590bb4935d356 1-11
+README.md
+  s_2575a80b56302b::t_60f1debc391b22 2,5-18,20,22-35,38-39
+multi-projects/README.md
+  s_2575a80b56302b::t_fc84bd1a29a850 1-25
+output/heredoc/main.tf
+  s_2575a80b56302b::t_b65f1875a1d8b3 1-13
+multi-projects/shared-module/main.tf
+  s_2575a80b56302b::t_ad0c295c750d6a 1-8
+multi-projects/project1/main.tf
+  s_2575a80b56302b::t_016c530a5e1a78 1-8
+multi-projects/project2/main.tf
+  s_2575a80b56302b::t_302750bb76cfde 1-8
+custom-workflows/scripts/assert-project-name.sh
+  s_2575a80b56302b::t_5a4af35a3a7048 1-18
+multi-projects/project-with-workspace/main.tf
+  s_2575a80b56302b::t_82dc4dec6229c6 1-14
+autodiscovery/explicit/main.tf
+  s_2575a80b56302b::t_659102128d5aa4 1-9
+detection/opentofu-basic/main.tf
+  s_2575a80b56302b::t_310a0c8f82f16f 1-9
+autodiscovery/included-b/main.tf
+  s_2575a80b56302b::t_2e6def795567ec 1-9
+drift/local-file/main.tf
+  s_2575a80b56302b::t_9f860bf44b024d 1-8
+custom-workflows/README.md
+  s_2575a80b56302b::t_6db55ce78c9d1a 1-28
+docs/coverage.md
+  s_2575a80b56302b::t_e104adc59c955a 1-73
+custom-workflows/project-name-env/main.tf
+  s_2575a80b56302b::t_7d1357c88a723d 1-9
+output/README.md
+  s_2575a80b56302b::t_62d7dec64d84ec 1-24
+output/failure/main.tf
+  s_2575a80b56302b::t_92147db99677ee 1-9
+detection/README.md
+  s_2575a80b56302b::t_a001a90453dde8 1-23
+autodiscovery/included-a/main.tf
+  s_2575a80b56302b::t_79318adea430d5 1-9
+drift/README.md
+  s_2575a80b56302b::t_54ef103a42eac1 1-23
+autodiscovery/ignored/main.tf
+  s_2575a80b56302b::t_43a288f4429132 1-9
+autodiscovery/README.md
+  s_2575a80b56302b::t_bbe68f0c49332c 1-24
+detection/terraform-tf/main.tf
+  s_2575a80b56302b::t_773d1dd7c03a61 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "e563e53678687aace8c5190bf58719ba9ca5d388",
+  "prompts": {},
+  "sessions": {
+    "s_2575a80b56302b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e598056d-4c94-4e98-b666-4843d40583f5",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Rui Chen <rui@chenrui.dev>"
+    }
+  }
+}
