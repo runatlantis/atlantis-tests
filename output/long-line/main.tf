@@ -1,5 +1,7 @@
+# Generates a single-line string >64 KiB (~84 KB) to exercise the plan output
+# scanner boundary fix from v0.44.1 #6544.
 locals {
-  long_string = join("", [for i in range(1000) : "abcdefghijklmnopqrstuvwxyz0123456789-${i}-"])
+  long_string = join("", [for i in range(2000) : "abcdefghijklmnopqrstuvwxyz0123456789-${i}-"])
 }
 
 resource "terraform_data" "long_line_output" {

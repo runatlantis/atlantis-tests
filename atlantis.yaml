@@ -8,6 +8,7 @@ autodiscover:
   ignore_paths:
     - "autodiscovery/ignored"
     - "drift/**"
+    - "multi-projects/shared-module"
     - "output/failure"
 
 projects:
