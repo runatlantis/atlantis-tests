@@ -1,0 +1,19 @@
+output/README.md
+  s_2575a80b56302b::t_b514394acb2b2c 13-14,16-17,23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "f6a465785e7ed3726f3217cb6b85fcc58f5aef28",
+  "prompts": {},
+  "sessions": {
+    "s_2575a80b56302b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e598056d-4c94-4e98-b666-4843d40583f5",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Rui Chen <rui@chenrui.dev>"
+    }
+  }
+}
