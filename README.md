@@ -19,7 +19,7 @@ Integration test fixture repository for [Atlantis](https://github.com/runatlanti
 | `detection/` | `.tf`, `.tf.json`, OpenTofu distribution detection | Fixture only; requires companion runner change |
 | `custom-workflows/` | Custom workflows, `PROJECT_NAME` hook env | Fixture only; requires companion runner change |
 | `output/` | Plan output rendering (heredoc, long-line, failure text) | Fixture only |
-| `locking/` | Repo lock lifecycle fixtures, including `repo_locks.mode: on_apply` preservation | Fixture only; requires companion runner change |
+| `locking/` | Repo lock lifecycle fixtures, including future `repo_locks.mode: on_apply` preservation coverage | Fixture only; requires companion runner/server config change |
 | `drift/` | Drift detection API scaffolding (alpha) | Scaffold only |
 
 ## How E2E Works
