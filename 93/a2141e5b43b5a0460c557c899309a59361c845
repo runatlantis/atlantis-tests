@@ -1,0 +1,25 @@
+docs/coverage.md
+  s_3d257d27e79460::t_00e3fbafa6e2d9 29,45,85,96-103
+atlantis.yaml
+  s_3d257d27e79460::t_00e3fbafa6e2d9 78-84
+README.md
+  s_3d257d27e79460::t_00e3fbafa6e2d9 22
+locking/on-apply-lock-preservation/main.tf
+  s_3d257d27e79460::t_00e3fbafa6e2d9 1-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "93a2141e5b43b5a0460c557c899309a59361c845",
+  "prompts": {},
+  "sessions": {
+    "s_3d257d27e79460": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f1187-a1d6-7381-8fa4-3c3f0ea42b91",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Rui Chen <rui@chenrui.dev>"
+    }
+  }
+}
