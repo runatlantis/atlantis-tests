@@ -26,7 +26,22 @@
 | `output/heredoc` | Heredoc/multiline diffs | v0.44.1 #6561 | Fixture only | Plan output rendering |
 | `output/long-line` | Long single-line output (>64 KiB) | v0.44.1 #6544 | Fixture only | ~88 KiB single-line value |
 | `output/failure` | Failure text on job page | v0.45.0 #6414 | Fixture only; requires companion runner change | Intentional failure with marker |
+| `locking/on-apply-lock-preservation` | `repo_locks.mode: on_apply` apply-lock preservation | PR #6606 / issue #6531 | Fixture only; requires companion runner/server config change | Root config intentionally omits active `repo_locks`; needs allowed override or server-side locking plus apply/two-PR lock contention scenario |
 | `drift/local-file` | Drift detection API scaffold | v0.45.0 #6360 | Scaffold only | Needs `--enable-drift-detection` server flag |
+
+### Locking Fixture Activation
+
+Future runner activation must either allow `repo_locks` as a repo-side override or configure equivalent server-side locking. The intended project config is:
+
+```yaml
+- dir: locking/on-apply-lock-preservation
+  name: locking-on-apply-preservation
+  workspace: default
+  repo_locks:
+    mode: on_apply
+```
+
+The current fixture PR intentionally does not set `repo_locks` in the shared root `atlantis.yaml` because today's upstream E2E server does not allow that repo-side override.
 
 ## Release Coverage Matrix
 
@@ -41,6 +56,7 @@
 | v0.45.0 | Path-hardening (CWE-22) | Follow-up — requires companion runner negative test case |
 | v0.45.0 | Slack payload improvements | Follow-up — needs mock HTTP receiver |
 | v0.45.0 | Streamed failure text to job page | Fixture only; requires companion runner change |
+| unreleased / next Atlantis | `repo_locks.mode: on_apply` plan cleanup must not delete apply-created locks (#6531 / #6606) | Fixture only — requires `repo_locks` override allowance or server-side locking, apply verification, and two-PR lock lifecycle runner support |
 | v0.44.1 | Apply lock fail-closed | Follow-up — needs Redis/lock backend in CI |
 | v0.44.1 | No-change apply status (`up to date`) | Follow-up — requires apply verification in runner |
 | v0.44.1 | Stale `.tfplan` cleanup | Follow-up — requires branch-update scenario in runner |
@@ -80,6 +96,12 @@ To activate the new fixtures, the runner needs:
 3. Apply verification (issue apply, check status)
 4. Comment assertion (fetch PR comments, match substrings)
 5. Negative test cases (expected failures, ignored paths)
+6. `repo_locks.mode: on_apply` preservation — needs runner support to:
+   1. allow `repo_locks` as a repo-side override, or configure `on_apply` locking server-side;
+   2. issue `atlantis apply`;
+   3. trigger a later generic/autoplan cleanup on the same PR;
+   4. open a second PR against the same project;
+   5. assert the second PR remains blocked by the first PR's apply-created lock.
 
 ## Follow-up Items (Cannot Be Covered by Fixtures Alone)
 
@@ -90,3 +112,12 @@ To activate the new fixtures, the runner needs:
 5. **GitHub App checkout** — needs App credentials with fork access
 6. **Sticky policy approvals** — needs conftest/policy server
 7. **Drift API full cycle** — needs `--enable-drift-detection` and local state mutation
+8. **`repo_locks.mode: on_apply` preservation** — future runner scenario:
+   1. Allow `repo_locks` as a repo-side override, or configure `on_apply` locking server-side.
+   2. PR1 changes `locking/on-apply-lock-preservation`.
+   3. Wait for plan success.
+   4. Comment `atlantis apply`.
+   5. Confirm apply success.
+   6. Trigger later generic `atlantis plan` or autoplan on PR1.
+   7. Open PR2 touching the same fixture.
+   8. Confirm PR2 apply is blocked by PR1's apply-created lock.

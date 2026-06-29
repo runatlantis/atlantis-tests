@@ -75,6 +75,14 @@ projects:
     autoplan:
       enabled: false
 
+  # --- Locking lifecycle fixtures ---
+  - dir: locking/on-apply-lock-preservation
+    name: locking-on-apply-preservation
+    workspace: default
+    # NOTE: The future #6531 runner scenario must run this project with
+    # repo_locks.mode: on_apply. Do not set repo_locks here until the
+    # upstream E2E server allows repo_locks as a repo-side override.
+
 workflows:
   assert-project-name:
     plan:
