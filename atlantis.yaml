@@ -75,6 +75,13 @@ projects:
     autoplan:
       enabled: false
 
+  # --- Locking lifecycle fixtures ---
+  - dir: locking/on-apply-lock-preservation
+    name: locking-on-apply-preservation
+    workspace: default
+    repo_locks:
+      mode: on_apply
+
 workflows:
   assert-project-name:
     plan:

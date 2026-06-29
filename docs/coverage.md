@@ -26,6 +26,7 @@
 | `output/heredoc` | Heredoc/multiline diffs | v0.44.1 #6561 | Fixture only | Plan output rendering |
 | `output/long-line` | Long single-line output (>64 KiB) | v0.44.1 #6544 | Fixture only | ~88 KiB single-line value |
 | `output/failure` | Failure text on job page | v0.45.0 #6414 | Fixture only; requires companion runner change | Intentional failure with marker |
+| `locking/on-apply-lock-preservation` | `repo_locks.mode: on_apply` apply-lock preservation | PR #6606 / issue #6531 | Fixture only; requires companion runner change | Needs apply command plus two-PR lock contention scenario |
 | `drift/local-file` | Drift detection API scaffold | v0.45.0 #6360 | Scaffold only | Needs `--enable-drift-detection` server flag |
 
 ## Release Coverage Matrix
@@ -41,6 +42,7 @@
 | v0.45.0 | Path-hardening (CWE-22) | Follow-up — requires companion runner negative test case |
 | v0.45.0 | Slack payload improvements | Follow-up — needs mock HTTP receiver |
 | v0.45.0 | Streamed failure text to job page | Fixture only; requires companion runner change |
+| unreleased / next Atlantis | `repo_locks.mode: on_apply` plan cleanup must not delete apply-created locks (#6531 / #6606) | Fixture only — requires apply verification and two-PR lock lifecycle runner support |
 | v0.44.1 | Apply lock fail-closed | Follow-up — needs Redis/lock backend in CI |
 | v0.44.1 | No-change apply status (`up to date`) | Follow-up — requires apply verification in runner |
 | v0.44.1 | Stale `.tfplan` cleanup | Follow-up — requires branch-update scenario in runner |
@@ -80,6 +82,7 @@ To activate the new fixtures, the runner needs:
 3. Apply verification (issue apply, check status)
 4. Comment assertion (fetch PR comments, match substrings)
 5. Negative test cases (expected failures, ignored paths)
+6. `repo_locks.mode: on_apply` preservation — needs runner support to issue `atlantis apply`, trigger a later generic/autoplan cleanup on the same PR, open a second PR against the same project, and assert the second PR remains blocked by the first PR's apply-created lock.
 
 ## Follow-up Items (Cannot Be Covered by Fixtures Alone)
 
@@ -90,3 +93,11 @@ To activate the new fixtures, the runner needs:
 5. **GitHub App checkout** — needs App credentials with fork access
 6. **Sticky policy approvals** — needs conftest/policy server
 7. **Drift API full cycle** — needs `--enable-drift-detection` and local state mutation
+8. **`repo_locks.mode: on_apply` preservation** — future runner scenario:
+   1. PR1 changes `locking/on-apply-lock-preservation`.
+   2. Wait for plan success.
+   3. Comment `atlantis apply`.
+   4. Confirm apply success.
+   5. Trigger later generic `atlantis plan` or autoplan on PR1.
+   6. Open PR2 touching the same fixture.
+   7. Confirm PR2 apply is blocked by PR1's apply-created lock.
