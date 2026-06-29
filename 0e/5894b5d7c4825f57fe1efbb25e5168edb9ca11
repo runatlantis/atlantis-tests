@@ -1,0 +1,23 @@
+docs/coverage.md
+  s_3d257d27e79460::t_58e9ef05303d04 29,32-45,59,99-104,116-123
+atlantis.yaml
+  s_3d257d27e79460::t_58e9ef05303d04 82-84
+README.md
+  s_3d257d27e79460::t_58e9ef05303d04 22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "0e5894b5d7c4825f57fe1efbb25e5168edb9ca11",
+  "prompts": {},
+  "sessions": {
+    "s_3d257d27e79460": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f1187-a1d6-7381-8fa4-3c3f0ea42b91",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Rui Chen <rui@chenrui.dev>"
+    }
+  }
+}
