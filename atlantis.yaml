@@ -62,6 +62,14 @@ projects:
     name: custom-workflow-env
     workflow: assert-project-name
 
+  # --- v0.46.0 apply regressions (#6641 and #6642) ---
+  - dir: apply-regressions/builtin-autoplan-apply
+    name: builtin-autoplan-apply
+
+  - dir: custom-workflows/custom-plan-path
+    name: custom-plan-path
+    workflow: custom-plan-path
+
   # --- Output rendering fixtures ---
   - dir: output/heredoc
     name: output-heredoc
@@ -95,3 +103,16 @@ workflows:
     plan:
       steps:
         - run: echo "ATLANTIS_E2E_FAILURE_MARKER" && exit 1
+
+  custom-plan-path:
+    plan:
+      steps:
+        - run: terraform init -input=false -no-color
+        - run: terraform plan -input=false -no-color -out=custom-atlantis.tfplan
+        - run: test -f custom-atlantis.tfplan
+        - run: echo ATLANTIS_E2E_CUSTOM_PLAN_CREATED
+    apply:
+      steps:
+        - run: test -f custom-atlantis.tfplan
+        - run: terraform apply -input=false -no-color custom-atlantis.tfplan
+        - run: echo ATLANTIS_E2E_CUSTOM_PLAN_APPLY_OK
