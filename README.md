@@ -14,11 +14,11 @@ GitHub or GitLab E2E jobs; opt-in cases require `E2E_OPT_IN=1`.
 |-----------|---------|----------------|
 | `standalone/` | Basic single-project plan | Active on GitHub and GitLab |
 | `standalone-with-workspace/` | Workspace-based planning | Active on GitHub |
-| `apply-regressions/` | Built-in autoplan followed immediately by targeted apply | Active plan-then-apply on GitHub |
+| `apply-regressions/` | Immediate apply, built-in replan, and managed-plan mutation regressions | Active success and expected-failure lifecycles on GitHub |
 | `multi-projects/` | Explicit projects and `when_modified` fan-out | Active project/fan-out cases; workspace case opt-in |
 | `autodiscovery/` | Autodiscovery and explicit precedence | Included project active; explicit precedence opt-in |
 | `detection/` | `.tf`, `.tf.json`, OpenTofu detection | `.tf.json` active; OpenTofu disabled; others fixture-only |
-| `custom-workflows/` | Hook environment and user-managed plan paths | Both regression workflows active on GitHub |
+| `custom-workflows/` | Hook environment and user-managed plan paths | Custom path and custom replan lifecycles active on GitHub |
 | `output/` | Plan output rendering | Long-line active; failure disabled; heredoc fixture-only |
 | `locking/` | `repo_locks.mode: on_apply` preservation | Opt-in two-PR plan/apply lifecycle |
 | `drift/` | Drift detection API scaffolding | Disabled until the server flag is available in E2E |
@@ -29,8 +29,9 @@ GitHub or GitLab E2E jobs; opt-in cases require `E2E_OPT_IN=1`.
 2. For each test case: clones repo → creates branch → mutates a Terraform file → pushes → opens PR
 3. Atlantis auto-plans via webhook
 4. Runner polls a new `atlantis/plan` result and asserts configured project statuses/comments
-5. Plan-then-apply cases post a targeted apply, reject stale status results, and assert a new apply comment marker
-6. Cleanup closes the PR, deletes the branch, and deletes the webhook
+5. Replan cases push a second generation, require a new plan result/comment, and only then post targeted apply
+6. Apply cases reject stale status results and assert either a new success marker or the configured failure evidence
+7. Cleanup closes the PR, deletes the branch, and deletes the webhook
 
 ## Adding Fixtures
 
@@ -39,6 +40,8 @@ GitHub or GitLab E2E jobs; opt-in cases require `E2E_OPT_IN=1`.
 - Add unique output markers for E2E assertion (`output "xyz_marker" { value = "..." }`)
 - Add explicit project entry in root `atlantis.yaml`
 - Update `docs/coverage.md`
+- Run `scripts/validate-fixture-consistency.sh`; when developing both repositories,
+  pass the upstream `e2e/testcase.go` path to validate cross-repository references
 
 ## License
 
