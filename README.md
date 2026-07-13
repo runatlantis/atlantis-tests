@@ -4,31 +4,33 @@
 
 Integration test fixture repository for [Atlantis](https://github.com/runatlantis/atlantis) E2E tests. See workflow runs at https://github.com/runatlantis/atlantis/actions/workflows/test.yml
 
-> **Note:** The upstream Atlantis E2E runner currently exercises only `standalone` and
-> `standalone-with-workspace`. Other fixture directories are structured for future runner
-> expansion and require a companion `runatlantis/atlantis` PR to become actively tested.
+The upstream Atlantis E2E runner has explicit plan-only, plan-then-apply, and
+on-apply lock-preservation scenarios. Cases marked active below run in the regular
+GitHub or GitLab E2E jobs; opt-in cases require `E2E_OPT_IN=1`.
 
 ## Fixture Categories
 
 | Directory | Purpose | Current Status |
 |-----------|---------|----------------|
-| `standalone/` | Basic single-project plan | Active in current runner |
-| `standalone-with-workspace/` | Workspace-based planning | Active in current runner |
-| `multi-projects/` | Explicit multi-project config, `-p` targeting, `when_modified` fan-out | Fixture only; requires companion runner change |
-| `autodiscovery/` | Autodiscovery mode, `ignore_paths`, explicit precedence | Fixture only; requires companion runner change |
-| `detection/` | `.tf`, `.tf.json`, OpenTofu distribution detection | Fixture only; requires companion runner change |
-| `custom-workflows/` | Custom workflows, `PROJECT_NAME` hook env | Fixture only; requires companion runner change |
-| `output/` | Plan output rendering (heredoc, long-line, failure text) | Fixture only |
-| `locking/` | Repo lock lifecycle fixtures, including future `repo_locks.mode: on_apply` preservation coverage | Fixture only; requires companion runner/server config change |
-| `drift/` | Drift detection API scaffolding (alpha) | Scaffold only |
+| `standalone/` | Basic single-project plan | Active on GitHub and GitLab |
+| `standalone-with-workspace/` | Workspace-based planning | Active on GitHub |
+| `apply-regressions/` | Built-in autoplan followed immediately by targeted apply | Active plan-then-apply on GitHub |
+| `multi-projects/` | Explicit projects and `when_modified` fan-out | Active project/fan-out cases; workspace case opt-in |
+| `autodiscovery/` | Autodiscovery and explicit precedence | Included project active; explicit precedence opt-in |
+| `detection/` | `.tf`, `.tf.json`, OpenTofu detection | `.tf.json` active; OpenTofu disabled; others fixture-only |
+| `custom-workflows/` | Hook environment and user-managed plan paths | Both regression workflows active on GitHub |
+| `output/` | Plan output rendering | Long-line active; failure disabled; heredoc fixture-only |
+| `locking/` | `repo_locks.mode: on_apply` preservation | Opt-in two-PR plan/apply lifecycle |
+| `drift/` | Drift detection API scaffolding | Disabled until the server flag is available in E2E |
 
 ## How E2E Works
 
 1. E2E runner creates a webhook pointing Atlantis at the test repo
-2. For each test case: clones repo → creates branch → mutates a `.tf` file → pushes → opens PR
+2. For each test case: clones repo → creates branch → mutates a Terraform file → pushes → opens PR
 3. Atlantis auto-plans via webhook
-4. Runner polls commit status (`atlantis/plan`) until success/failure/timeout
-5. Cleanup: close PR, delete branch, delete webhook
+4. Runner polls a new `atlantis/plan` result and asserts configured project statuses/comments
+5. Plan-then-apply cases post a targeted apply, reject stale status results, and assert a new apply comment marker
+6. Cleanup closes the PR, deletes the branch, and deletes the webhook
 
 ## Adding Fixtures
 

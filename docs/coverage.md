@@ -1,123 +1,77 @@
 # Atlantis E2E Coverage Inventory
 
-> **Note:** As of this PR, the upstream Atlantis E2E runner (`runatlantis/atlantis/e2e/main.go`)
-> actively exercises only `standalone` and `standalone-with-workspace`. All other fixture
-> directories are structured for future runner expansion and require a companion
-> `runatlantis/atlantis` E2E runner PR to become actively tested.
+The upstream runner uses explicit lifecycle scenarios. `ScenarioPlanOnly` is the
+default, `ScenarioPlanThenApply` is active only for named apply cases, and
+`ScenarioOnApplyLockPreservation` is an opt-in two-PR lifecycle. An `ApplyCommand`
+on a plan-only case is intentionally not executed.
 
 ## Fixture Status
 
-| Fixture | Atlantis Feature | Release Motivation | Current Status | Notes |
-|---------|-----------------|-------------------|----------------|-------|
-| `standalone` | Basic single-project plan/apply | Original smoke test | Active in current runner | Plan-only verification |
-| `standalone-with-workspace` | Workspace-based planning | Original smoke test | Active in current runner | workspace=staging |
-| `multi-projects/project1` | Explicit multi-project config | General coverage | Fixture only; requires companion runner change | `-p project1` targeting |
-| `multi-projects/project2` | Explicit multi-project config | General coverage | Fixture only; requires companion runner change | `-p project2` targeting |
-| `multi-projects/project-with-workspace` | Project + workspace combo | General coverage | Fixture only; requires companion runner change | workspace=dev |
-| `multi-projects/shared-module` | `when_modified` fan-out | General coverage | Fixture only; requires companion runner change | Triggers project1+project2 via when_modified |
-| `autodiscovery/included-a` | Autodiscovery mode:enabled | v0.45.0 #6466 | Fixture only; requires companion runner change | Auto-discovered, not in explicit projects |
-| `autodiscovery/included-b` | Autodiscovery mode:enabled | v0.45.0 #6466 | Fixture only; requires companion runner change | Second auto-discovered project |
-| `autodiscovery/ignored` | `autodiscover.ignore_paths` | v0.45.0 #6466 | Fixture only; requires companion runner change | Targeted `-d` should respect ignore |
-| `autodiscovery/explicit` | Explicit overrides discovery | v0.45.0 #6466 | Fixture only; requires companion runner change | Explicit project takes precedence |
-| `detection/terraform-tf` | `.tf` file detection | v0.44.1 #6455 | Fixture only; requires companion runner change | Standard terraform project |
-| `detection/terraform-json` | `.tf.json` detection | v0.44.1 #6455 | Fixture only; requires companion runner change | JSON-format terraform |
-| `detection/opentofu-basic` | OpenTofu distribution | v0.45.0 #6597 | Fixture only; requires companion runner change | `terraform_distribution: opentofu` |
-| `custom-workflows/project-name-env` | PROJECT_NAME in hooks | v0.44.0 #6438 | Fixture only; requires companion runner change | Custom workflow asserts env var |
-| `output/heredoc` | Heredoc/multiline diffs | v0.44.1 #6561 | Fixture only | Plan output rendering |
-| `output/long-line` | Long single-line output (>64 KiB) | v0.44.1 #6544 | Fixture only | ~88 KiB single-line value |
-| `output/failure` | Failure text on job page | v0.45.0 #6414 | Fixture only; requires companion runner change | Intentional failure with marker |
-| `locking/on-apply-lock-preservation` | `repo_locks.mode: on_apply` apply-lock preservation | PR #6606 / issue #6531 | Fixture only; requires companion runner/server config change | Root config intentionally omits active `repo_locks`; needs allowed override or server-side locking plus apply/two-PR lock contention scenario |
-| `drift/local-file` | Drift detection API scaffold | v0.45.0 #6360 | Scaffold only | Needs `--enable-drift-detection` server flag |
+| Fixture | Coverage | Runner status |
+|---------|----------|---------------|
+| `standalone` | Basic single-project plan | Active on GitHub |
+| `standalone` | Aggregate plan plus project comment marker | Active on GitLab |
+| `standalone-with-workspace` | Workspace `staging` plan | Active on GitHub |
+| `apply-regressions/builtin-autoplan-apply` | Built-in autoplan immediately followed by targeted built-in apply; Atlantis v0.46.0 regression [#6641](https://github.com/runatlantis/atlantis/issues/6641) | Active plan-then-apply on GitHub |
+| `custom-workflows/custom-plan-path` | Run-only plan/apply using `custom-atlantis.tfplan`, never `$PLANFILE`; Atlantis v0.46.0 regression [#6642](https://github.com/runatlantis/atlantis/issues/6642) | Active targeted plan-then-apply on GitHub |
+| `multi-projects/project1` | Explicit project selection | Active on GitHub |
+| `multi-projects/shared-module` | `when_modified` fan-out to project1 and project2 | Active on GitHub |
+| `multi-projects/project-with-workspace` | Project plus workspace | Opt-in |
+| `autodiscovery/included-a` | Included autodiscovered project | Active on GitHub |
+| `autodiscovery/explicit` | Explicit project precedence | Opt-in |
+| `autodiscovery/included-b` | Second discovered project | Fixture-only |
+| `autodiscovery/ignored` | `autodiscover.ignore_paths` | Fixture-only |
+| `detection/terraform-json` | Configured `.tf.json` project | Active on GitHub |
+| `detection/terraform-tf` | Standard `.tf` detection | Fixture-only |
+| `detection/opentofu-basic` | OpenTofu distribution | Disabled; `tofu` is not guaranteed in CI |
+| `custom-workflows/project-name-env` | `PROJECT_NAME` hook environment | Active on GitHub |
+| `output/long-line` | Output longer than 64 KiB | Active on GitHub |
+| `output/heredoc` | Heredoc and multiline rendering | Fixture-only |
+| `output/failure` | Intentional plan failure marker | Disabled; needs manual-plan trigger support |
+| `locking/on-apply-lock-preservation` | Apply-created repo lock survives a later plan and blocks a second PR | Opt-in on GitHub |
+| `drift/local-file` | Drift remediation API | Disabled; needs `--enable-drift-detection` |
 
-### Locking Fixture Activation
+## Active v0.46.0 Regression Lifecycles
 
-Future runner activation must either allow `repo_locks` as a repo-side override or configure equivalent server-side locking. The intended project config is:
+### Built-in autoplan to apply (#6641)
 
-```yaml
-- dir: locking/on-apply-lock-preservation
-  name: locking-on-apply-preservation
-  workspace: default
-  repo_locks:
-    mode: on_apply
+The runner waits for a successful terminal autoplan result, verifies
+`atlantis/plan: builtin-autoplan-apply`, then immediately posts:
+
+```text
+atlantis apply -p builtin-autoplan-apply
 ```
 
-The current fixture PR intentionally does not set `repo_locks` in the shared root `atlantis.yaml` because today's upstream E2E server does not allow that repo-side override.
+It does not post a manual plan. The case requires a new aggregate apply result,
+the successful `atlantis/apply: builtin-autoplan-apply` context, and a new comment
+containing `ATLANTIS_E2E_BUILTIN_AUTOPLAN_APPLY_OK`.
 
-## Release Coverage Matrix
+### Custom plan path apply (#6642)
 
-| Release | Feature/Fix | Coverage Status |
-|---------|------------|----------------|
-| v0.45.0 | Drift detection/remediation APIs | Scaffold only — needs `--enable-drift-detection` and dedicated E2E mode |
-| v0.45.0 | Localization (`--language`) | Follow-up — requires server-side config, not repo-level |
-| v0.45.0 | Automerge controls | Follow-up — risky in live test repo, needs isolated fork |
-| v0.45.0 | `autodiscover.ignore_paths` on targeted `-d` | Fixture only; requires companion runner change |
-| v0.45.0 | OpenTofu distribution detection | Fixture only; requires companion runner change |
-| v0.45.0 | `.tf`, `.tf.json`, `terragrunt.hcl` detection | Fixture only (`.tf`, `.tf.json`); Terragrunt deferred (not in CI) |
-| v0.45.0 | Path-hardening (CWE-22) | Follow-up — requires companion runner negative test case |
-| v0.45.0 | Slack payload improvements | Follow-up — needs mock HTTP receiver |
-| v0.45.0 | Streamed failure text to job page | Fixture only; requires companion runner change |
-| unreleased / next Atlantis | `repo_locks.mode: on_apply` plan cleanup must not delete apply-created locks (#6531 / #6606) | Fixture only — requires `repo_locks` override allowance or server-side locking, apply verification, and two-PR lock lifecycle runner support |
-| v0.44.1 | Apply lock fail-closed | Follow-up — needs Redis/lock backend in CI |
-| v0.44.1 | No-change apply status (`up to date`) | Follow-up — requires apply verification in runner |
-| v0.44.1 | Stale `.tfplan` cleanup | Follow-up — requires branch-update scenario in runner |
-| v0.44.1 | Heredoc/multiline diff rendering | Fixture only — visual, hard to assert programmatically |
-| v0.44.1 | `to forget` plan statistics | Fixture only — needs stateful resource |
-| v0.44.1 | Long line (>64 KiB) output | Fixture only |
-| v0.44.0 | Sticky policy approvals | Follow-up — needs policy server config |
-| v0.44.0 | Redis cluster support | Follow-up — needs Redis in CI |
-| v0.44.0 | `PROJECT_NAME` hook env | Fixture only; requires companion runner change |
+Both workflow stages contain only `run` steps. The plan is written to
+`custom-atlantis.tfplan`; the workflow does not reference or create `$PLANFILE`.
+The runner verifies the custom plan marker, posts:
 
-## Current E2E Runner Architecture
-
-The current Atlantis E2E runner (`runatlantis/atlantis/e2e/main.go`) has two hardcoded test cases:
-
-```go
-var projectTypes = []Project{
-    {"standalone", "atlantis apply -d standalone"},
-    {"standalone-with-workspace", "atlantis apply -d standalone-with-workspace -w staging"},
-}
+```text
+atlantis apply -p custom-plan-path
 ```
 
-Each test: clones repo → creates branch → writes `.tf` file → pushes → creates PR → polls `atlantis/plan` commit status until success/failure/timeout → cleans up.
+It then requires a new successful aggregate/project apply result and a new comment
+containing `ATLANTIS_E2E_CUSTOM_PLAN_APPLY_OK`.
 
-**Limitations of current runner:**
-- Only checks plan status, never issues apply
-- No comment text assertion
-- No project-name targeting (`-p`)
-- No negative/failure test cases
-- No autodiscovery or custom workflow verification
+## Runner Guarantees
 
-## Companion Runner Changes Needed (`runatlantis/atlantis`)
+- Each lifecycle reuses the same clone, branch, mutation, push, pull-request, and cleanup setup.
+- Repeated commands are distinguished by commit-status ID or update time, so a stale aggregate status cannot satisfy apply.
+- GitHub cases can assert exact per-project plan and apply status contexts.
+- Apply comment markers must occur after the apply command; an older matching comment is rejected.
+- Timeout diagnostics include the pull-request URL, aggregate status, relevant project statuses, and recent Atlantis comments.
 
-To activate the new fixtures, the runner needs:
+## Follow-up Coverage
 
-1. Richer test-case table with: Name, Dir, Workspace, ProjectName, FilesToMutate, ExpectedStatus, ApplyCommand, ExpectedCommentSubstring, ExpectFailure, VCS
-2. New test cases for each fixture category
-3. Apply verification (issue apply, check status)
-4. Comment assertion (fetch PR comments, match substrings)
-5. Negative test cases (expected failures, ignored paths)
-6. `repo_locks.mode: on_apply` preservation — needs runner support to:
-   1. allow `repo_locks` as a repo-side override, or configure `on_apply` locking server-side;
-   2. issue `atlantis apply`;
-   3. trigger a later generic/autoplan cleanup on the same PR;
-   4. open a second PR against the same project;
-   5. assert the second PR remains blocked by the first PR's apply-created lock.
-
-## Follow-up Items (Cannot Be Covered by Fixtures Alone)
-
-1. **Localization** — needs `--language`/`--language-config-file` server flag
-2. **Automerge** — needs isolated fork to safely merge test PRs
-3. **Redis cluster locking** — needs Redis service in CI
-4. **Slack notifications** — needs mock HTTP receiver
-5. **GitHub App checkout** — needs App credentials with fork access
-6. **Sticky policy approvals** — needs conftest/policy server
-7. **Drift API full cycle** — needs `--enable-drift-detection` and local state mutation
-8. **`repo_locks.mode: on_apply` preservation** — future runner scenario:
-   1. Allow `repo_locks` as a repo-side override, or configure `on_apply` locking server-side.
-   2. PR1 changes `locking/on-apply-lock-preservation`.
-   3. Wait for plan success.
-   4. Comment `atlantis apply`.
-   5. Confirm apply success.
-   6. Trigger later generic `atlantis plan` or autoplan on PR1.
-   7. Open PR2 touching the same fixture.
-   8. Confirm PR2 apply is blocked by PR1's apply-created lock.
+- Gitea is covered by realistic Atlantis parser/database integration tests, not the hosted E2E runner.
+- Redis cluster/locking needs a Redis service in CI.
+- Policy checks need a policy server or conftest setup.
+- Drift needs the alpha server flag and a state mutation lifecycle.
+- Automerge needs an isolated repository where merging E2E pull requests is safe.
+- Visual heredoc rendering remains difficult to assert through commit statuses alone.
