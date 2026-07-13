@@ -1,0 +1,26 @@
+apply-regressions/README.md
+  s_2a3e2ffe398070::t_635ef268f2ba5f 7-10,14-15
+docs/coverage.md
+  s_2a3e2ffe398070::t_635ef268f2ba5f 4-6,18-19,21,67-79,86
+README.md
+  s_2a3e2ffe398070::t_a55b1241ac6128 43-44
+  s_2a3e2ffe398070::t_635ef268f2ba5f 17,21,32-34
+custom-workflows/README.md
+  s_2a3e2ffe398070::t_635ef268f2ba5f 11,36-48,60-63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "0a6a0c5b07a6305f321e1f229ee65c488c0753d2",
+  "prompts": {},
+  "sessions": {
+    "s_2a3e2ffe398070": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f5be8-fc9f-7442-9630-9cda5e921418",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Rui Chen <rui@chenrui.dev>"
+    }
+  }
+}
