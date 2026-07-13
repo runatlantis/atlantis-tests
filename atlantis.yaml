@@ -66,9 +66,20 @@ projects:
   - dir: apply-regressions/builtin-autoplan-apply
     name: builtin-autoplan-apply
 
+  - dir: apply-regressions/builtin-replan-apply
+    name: builtin-replan-apply
+
+  - dir: apply-regressions/mixed-plan-mutation
+    name: mixed-plan-mutation
+    workflow: mixed-plan-mutation
+
   - dir: custom-workflows/custom-plan-path
     name: custom-plan-path
     workflow: custom-plan-path
+
+  - dir: custom-workflows/custom-plan-replan
+    name: custom-plan-replan
+    workflow: custom-plan-replan
 
   # --- Output rendering fixtures ---
   - dir: output/heredoc
@@ -116,3 +127,23 @@ workflows:
         - run: test -f custom-atlantis.tfplan
         - run: terraform apply -input=false -no-color custom-atlantis.tfplan
         - run: echo ATLANTIS_E2E_CUSTOM_PLAN_APPLY_OK
+
+  custom-plan-replan:
+    plan:
+      steps:
+        - run: terraform init -input=false -no-color
+        - run: terraform plan -input=false -no-color -out=custom-replan.tfplan
+        - run: test -f custom-replan.tfplan
+        - run: sh plan-generation-marker.sh
+    apply:
+      steps:
+        - run: test -f custom-replan.tfplan
+        - run: terraform apply -input=false -no-color custom-replan.tfplan
+        - run: echo ATLANTIS_E2E_CUSTOM_REPLAN_APPLY_OK
+
+  mixed-plan-mutation:
+    apply:
+      steps:
+        - run: printf '\nATLANTIS_E2E_MIXED_PLAN_MUTATED\n' >> "$PLANFILE"
+        - apply
+        - run: echo ATLANTIS_E2E_MIXED_BUILTIN_APPLY_MUST_NOT_RUN
