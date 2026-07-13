@@ -1,0 +1,33 @@
+apply-regressions/builtin-replan-apply/main.tf
+  s_2a3e2ffe398070::t_06c2189cdf4c31 1-17
+custom-workflows/custom-plan-replan/plan-generation-marker.sh
+  s_2a3e2ffe398070::t_06c2189cdf4c31 1-10
+custom-workflows/custom-plan-replan/main.tf
+  s_2a3e2ffe398070::t_06c2189cdf4c31 1-17
+custom-workflows/custom-plan-replan/README.md
+  s_2a3e2ffe398070::t_06c2189cdf4c31 1-18
+atlantis.yaml
+  s_2a3e2ffe398070::t_06c2189cdf4c31 69-75,80-83,130-149
+apply-regressions/mixed-plan-mutation/main.tf
+  s_2a3e2ffe398070::t_06c2189cdf4c31 1-11
+apply-regressions/mixed-plan-mutation/README.md
+  s_2a3e2ffe398070::t_06c2189cdf4c31 1-16
+apply-regressions/builtin-replan-apply/README.md
+  s_2a3e2ffe398070::t_06c2189cdf4c31 1-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "4d2c9f03e819ee90d8cb9798210d27d9fad236b8",
+  "prompts": {},
+  "sessions": {
+    "s_2a3e2ffe398070": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f5be8-fc9f-7442-9630-9cda5e921418",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Rui Chen <rui@chenrui.dev>"
+    }
+  }
+}
