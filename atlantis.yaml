@@ -118,14 +118,19 @@ workflows:
   custom-plan-path:
     plan:
       steps:
+        - run: mkdir -p generated/dev generated/staging
         - run: terraform init -input=false -no-color
-        - run: terraform plan -input=false -no-color -out=custom-atlantis.tfplan
-        - run: test -f custom-atlantis.tfplan
-        - run: echo ATLANTIS_E2E_CUSTOM_PLAN_CREATED
+        - run: terraform plan -input=false -no-color -out=generated/dev/atlantis.tfplan
+        - run: terraform plan -input=false -no-color -out=generated/staging/atlantis.tfplan
+        - run: test -f generated/dev/atlantis.tfplan && test -f generated/staging/atlantis.tfplan
+        - run: test ! -e custom-plan-path-default.tfplan
+        - run: echo ATLANTIS_E2E_CUSTOM_PLAN_CREATED generated/dev/atlantis.tfplan generated/staging/atlantis.tfplan
     apply:
       steps:
-        - run: test -f custom-atlantis.tfplan
-        - run: terraform apply -input=false -no-color custom-atlantis.tfplan
+        - run: test -f generated/dev/atlantis.tfplan && test -f generated/staging/atlantis.tfplan
+        - run: test ! -e custom-plan-path-default.tfplan
+        - run: terraform apply -input=false -no-color generated/dev/atlantis.tfplan
+        - run: test -f generated/dev/atlantis.tfplan && test -f generated/staging/atlantis.tfplan && test ! -e custom-plan-path-default.tfplan
         - run: echo ATLANTIS_E2E_CUSTOM_PLAN_APPLY_OK
 
   custom-plan-replan:

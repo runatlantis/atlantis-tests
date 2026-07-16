@@ -7,7 +7,7 @@ Tests custom workflow execution, hook environment variables, and user-managed pl
 - **PROJECT_NAME env var**: Pre-plan hook asserts `$PROJECT_NAME` is set correctly
 - **Custom workflow steps**: `run` step executes before `init`/`plan`
 - **Script validation**: POSIX shell script with clear pass/fail output
-- **Custom plan path apply**: v0.46.0 regression coverage for Atlantis #6642
+- **Nested custom plan apply**: v0.46.0 generic-apply regression coverage for Atlantis #6642
 - **Custom plan replan**: two generations at a user-managed path with targeted apply
 
 ## Workflow Definition (in root atlantis.yaml)
@@ -24,14 +24,19 @@ workflows:
   custom-plan-path:
     plan:
       steps:
+        - run: mkdir -p generated/dev generated/staging
         - run: terraform init -input=false -no-color
-        - run: terraform plan -input=false -no-color -out=custom-atlantis.tfplan
-        - run: test -f custom-atlantis.tfplan
-        - run: echo ATLANTIS_E2E_CUSTOM_PLAN_CREATED
+        - run: terraform plan -input=false -no-color -out=generated/dev/atlantis.tfplan
+        - run: terraform plan -input=false -no-color -out=generated/staging/atlantis.tfplan
+        - run: test -f generated/dev/atlantis.tfplan && test -f generated/staging/atlantis.tfplan
+        - run: test ! -e custom-plan-path-default.tfplan
+        - run: echo ATLANTIS_E2E_CUSTOM_PLAN_CREATED generated/dev/atlantis.tfplan generated/staging/atlantis.tfplan
     apply:
       steps:
-        - run: test -f custom-atlantis.tfplan
-        - run: terraform apply -input=false -no-color custom-atlantis.tfplan
+        - run: test -f generated/dev/atlantis.tfplan && test -f generated/staging/atlantis.tfplan
+        - run: test ! -e custom-plan-path-default.tfplan
+        - run: terraform apply -input=false -no-color generated/dev/atlantis.tfplan
+        - run: test -f generated/dev/atlantis.tfplan && test -f generated/staging/atlantis.tfplan && test ! -e custom-plan-path-default.tfplan
         - run: echo ATLANTIS_E2E_CUSTOM_PLAN_APPLY_OK
 
   custom-plan-replan:
@@ -55,8 +60,10 @@ workflows:
 3. If env var missing or wrong → plan fails with "FAIL:" marker
 4. If correct → prints "PASS:" and continues to init/plan
 
-For `custom-plan-path`, the runner waits for the custom autoplan marker, posts
-`atlantis apply -p custom-plan-path`, and requires the apply marker from a new comment.
+For `custom-plan-path`, the runner waits for the custom autoplan marker, posts plain
+`atlantis apply`, and requires the apply marker from a new comment. The workflow
+creates two user-managed plans below `generated/dev` and `generated/staging`, applies
+the `dev` plan, and checks that Atlantis never creates its root convention plan.
 
 For `custom-plan-replan`, the runner overwrites `generation.auto.tfvars`, requires
 the generation-2 plan marker in a new comment, and then applies the targeted custom

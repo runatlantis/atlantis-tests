@@ -61,6 +61,32 @@ test -f "$repo_root/custom-workflows/custom-plan-replan/plan-generation-marker.s
 grep -Fq 'sh plan-generation-marker.sh' "$config"
 grep -Fq 'ATLANTIS_E2E_MIXED_BUILTIN_APPLY_MUST_NOT_RUN' "$config"
 
+awk '
+  /^  custom-plan-path:/ { in_workflow = 1; next }
+  in_workflow && /^  [A-Za-z0-9_-]+:/ { exit }
+  in_workflow { print }
+' "$config" >"$tmp_dir/custom-plan-path-workflow"
+for plan in generated/dev/atlantis.tfplan generated/staging/atlantis.tfplan; do
+  grep -Fq -- "-out=$plan" "$tmp_dir/custom-plan-path-workflow"
+  grep -Fq "test -f $plan" "$tmp_dir/custom-plan-path-workflow"
+done
+if [ "$(grep -Fc -- '-out=' "$tmp_dir/custom-plan-path-workflow")" -ne 2 ]; then
+  echo "custom plan path workflow must create exactly two nested plan artifacts" >&2
+  exit 1
+fi
+grep -Fq 'terraform apply -input=false -no-color generated/dev/atlantis.tfplan' "$tmp_dir/custom-plan-path-workflow"
+if [ "$(grep -Fc 'terraform apply ' "$tmp_dir/custom-plan-path-workflow")" -ne 1 ]; then
+  echo "custom plan path workflow must apply exactly one nested plan" >&2
+  exit 1
+fi
+grep -Fq 'test ! -e custom-plan-path-default.tfplan' "$tmp_dir/custom-plan-path-workflow"
+grep -Fq 'echo ATLANTIS_E2E_CUSTOM_PLAN_CREATED generated/dev/atlantis.tfplan generated/staging/atlantis.tfplan' "$tmp_dir/custom-plan-path-workflow"
+if grep -Fq 'custom-atlantis.tfplan' "$tmp_dir/custom-plan-path-workflow" ||
+  grep -Fq "\$PLANFILE" "$tmp_dir/custom-plan-path-workflow"; then
+  echo "custom plan path workflow still uses an Atlantis-managed plan path" >&2
+  exit 1
+fi
+
 if [ "$#" -gt 1 ]; then
   echo "usage: $0 [upstream-e2e-testcase.go]" >&2
   exit 1
@@ -89,6 +115,12 @@ if [ "$#" -eq 1 ]; then
       exit 1
     fi
   done <"$tmp_dir/e2e-projects"
+
+  custom_case=$(sed -n '/Name:.*"custom-plan-path-apply"/,/^\t},/p' "$upstream_testcases")
+  if ! printf '%s\n' "$custom_case" | grep -Fq 'ApplyCommand:                  "atlantis apply"'; then
+    echo "upstream custom plan path case must use generic atlantis apply" >&2
+    exit 1
+  fi
 fi
 
 echo "fixture consistency validation passed"
