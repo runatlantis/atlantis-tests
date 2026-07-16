@@ -18,7 +18,7 @@ GitHub or GitLab E2E jobs; opt-in cases require `E2E_OPT_IN=1`.
 | `multi-projects/` | Explicit projects and `when_modified` fan-out | Active project/fan-out cases; workspace case opt-in |
 | `autodiscovery/` | Autodiscovery and explicit precedence | Included project active; explicit precedence opt-in |
 | `detection/` | `.tf`, `.tf.json`, OpenTofu detection | `.tf.json` active; OpenTofu disabled; others fixture-only |
-| `custom-workflows/` | Hook environment and user-managed plan paths | Custom path and custom replan lifecycles active on GitHub |
+| `custom-workflows/` | Hook environment and user-managed plan paths | Nested custom-path generic apply and custom replan lifecycles active on GitHub |
 | `output/` | Plan output rendering | Long-line active; failure disabled; heredoc fixture-only |
 | `locking/` | `repo_locks.mode: on_apply` preservation | Opt-in two-PR plan/apply lifecycle |
 | `drift/` | Drift detection API scaffolding | Disabled until the server flag is available in E2E |
