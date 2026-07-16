@@ -80,6 +80,7 @@ if [ "$(grep -Fc 'terraform apply ' "$tmp_dir/custom-plan-path-workflow")" -ne 1
   exit 1
 fi
 grep -Fq 'test ! -e custom-plan-path-default.tfplan' "$tmp_dir/custom-plan-path-workflow"
+grep -Fq 'echo ATLANTIS_E2E_CUSTOM_PLAN_CREATED generated/dev/atlantis.tfplan generated/staging/atlantis.tfplan' "$tmp_dir/custom-plan-path-workflow"
 if grep -Fq 'custom-atlantis.tfplan' "$tmp_dir/custom-plan-path-workflow" ||
   grep -Fq "\$PLANFILE" "$tmp_dir/custom-plan-path-workflow"; then
   echo "custom plan path workflow still uses an Atlantis-managed plan path" >&2
@@ -118,10 +119,6 @@ if [ "$#" -eq 1 ]; then
   custom_case=$(sed -n '/Name:.*"custom-plan-path-apply"/,/^\t},/p' "$upstream_testcases")
   if ! printf '%s\n' "$custom_case" | grep -Fq 'ApplyCommand:                  "atlantis apply"'; then
     echo "upstream custom plan path case must use generic atlantis apply" >&2
-    exit 1
-  fi
-  if ! printf '%s\n' "$custom_case" | grep -Fq 'ATLANTIS_E2E_CUSTOM_PLAN_CREATED generated/dev/atlantis.tfplan generated/staging/atlantis.tfplan'; then
-    echo "upstream custom plan path case must require both nested plan artifacts" >&2
     exit 1
   fi
 fi
