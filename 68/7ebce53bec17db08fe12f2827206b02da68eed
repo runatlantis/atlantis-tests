@@ -1,0 +1,31 @@
+custom-workflows/README.md
+  s_138b00afe532a5::t_617e4b211b1d16 10,27,29-33,36-39,63-66
+atlantis.yaml
+  s_138b00afe532a5::t_617e4b211b1d16 121,123-127,130-133
+custom-workflows/custom-plan-path/README.md
+  s_138b00afe532a5::t_617e4b211b1d16 6-7,9-16,19,22-24
+docs/coverage.md
+  s_138b00afe532a5::t_617e4b211b1d16 20,56-59,62,65-68
+README.md
+  s_138b00afe532a5::t_617e4b211b1d16 21
+scripts/validate-fixture-consistency.sh
+  s_138b00afe532a5::t_617e4b211b1d16 64-72,77,82,86-88,117-120,125-126
+  s_138b00afe532a5::t_89a474ea51708b 84
+  s_138b00afe532a5::t_bfb031db959a37 73-76,78-81,83,85,121-124
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "687ebce53bec17db08fe12f2827206b02da68eed",
+  "prompts": {},
+  "sessions": {
+    "s_138b00afe532a5": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f6af9-219c-7b40-9267-b6a16218fdb3",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Rui Chen <rui@chenrui.dev>"
+    }
+  }
+}
