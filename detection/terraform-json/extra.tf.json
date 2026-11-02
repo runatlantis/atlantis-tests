@@ -1,0 +1,11 @@
+{
+  "resource": {
+    "null_resource": {
+      "json_e2e": {
+        "triggers": {
+          "run": "e2e"
+        }
+      }
+    }
+  }
+}
